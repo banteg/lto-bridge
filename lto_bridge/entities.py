@@ -9,6 +9,7 @@ db = Database()
 class Bridge(db.Entity):
     network = Required(str)
     tx = Required(str)
+    lto_tx = Optional(str)
     value = Required(Decimal, sql_type='numeric')
     burned = Optional(Decimal, sql_type='numeric')
     block = Required(int)

@@ -23,41 +23,41 @@ ABI = {
 }
 # lto -> ethereum
 TOPICS = construct_event_topic_set(ABI, {'from': ZERO_ADDRESS})
+ts_cache = {}
 
 
-class Ethereum:
-    def __init__(self):
-        self.ts_cache = {}
+def fetch():
+    start = Bridge.last_block('ethereum') or LTO_BLOCK
+    txs = []
+    for batch in get_logs_multipart(w3, start, w3.eth.blockNumber, LTO_TOKEN, TOPICS, 10000):
+        if batch:
+            print(f"ethereum block {batch[-1]['blockNumber']}")
+        txs = [prepare(tx) for tx in batch]
+        write(txs)
 
-    def fetch(self):
-        start = Bridge.last_block('ethereum') or LTO_BLOCK
-        txs = []
-        for batch in get_logs_multipart(w3, start, w3.eth.blockNumber, LTO_TOKEN, TOPICS, 10000):
-            if batch:
-                print(f"ethereum block {batch[-1]['blockNumber']}")
-            txs.extend(batch)
-        return [self.prepare(tx) for tx in txs]
 
-    def prepare(self, tx):
-        tx = get_event_data(ABI, tx)
-        return dict(
-            network='ethereum',
-            tx=encode_hex(tx.transactionHash),
-            value=Decimal(tx.args.value) / 10 ** 8,
-            block=tx.blockNumber,
-            ts=self.timestamp(tx.blockNumber),
-        )
+def prepare(tx):
+    tx = get_event_data(ABI, tx)
+    return dict(
+        network='ethereum',
+        tx=encode_hex(tx.transactionHash),
+        value=Decimal(tx.args.value) / 10 ** 8,
+        block=tx.blockNumber,
+        ts=timestamp(tx.blockNumber),
+    )
 
-    def timestamp(self, block_number):
-        if block_number not in self.ts_cache:
-            block = w3.eth.getBlock(block_number)
-            self.ts_cache[block_number] = datetime.fromtimestamp(block.timestamp)
-        return self.ts_cache[block_number]
 
-    @db_session
-    def write(self, txs):
-        for prepared in txs:
-            if Bridge.exists(tx=prepared['tx']):
-                continue
-            inserted = Bridge(**prepared)
-            print(inserted)
+def timestamp(block_number):
+    if block_number not in ts_cache:
+        block = w3.eth.getBlock(block_number)
+        ts_cache[block_number] = datetime.fromtimestamp(block.timestamp)
+    return ts_cache[block_number]
+
+
+@db_session
+def write(txs):
+    for prepared in txs:
+        if Bridge.exists(tx=prepared['tx']):
+            continue
+        inserted = Bridge(**prepared)
+        print(inserted)
