@@ -10,9 +10,10 @@ from lto_bridge.entities import Bridge, db_session
 BINANCE_BRIDGE = 'bnb1esdfkkddv0sa5w7njk080rwuda47k3me3nxk75'
 label = colored('Binance', 'yellow')
 
+
 def fetch():
     last_block = Bridge.last_block('binance')
-    print(label, 'fetching since', last_block or 'beginning...')
+    print(label, 'fetching since', last_block or 'beginning')
     txs = []
     for page in count(1):
         print(label, 'page', page)
