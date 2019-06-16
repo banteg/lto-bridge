@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from web3.auto import w3
 from web3.middleware.filter import get_logs_multipart
 from web3._utils.events import get_event_data, construct_event_topic_set
-from eth_utils import event_signature_to_log_topic, encode_hex
+from eth_utils import encode_hex
 from termcolor import colored
 
 from lto_bridge.entities import Bridge, db_session
@@ -24,7 +24,6 @@ ABI = {
     'name': 'Transfer',
     'type': 'event',
 }
-# lto -> ethereum
 TOPICS_IN = construct_event_topic_set(ABI, {'from': ZERO_ADDRESS})
 TOPICS_OUT = construct_event_topic_set(ABI, {'to': ZERO_ADDRESS})
 
@@ -49,7 +48,6 @@ def fetch():
             pos = batch[-1]['blockNumber']
             progress = (pos - start) / (end - start) * 100
             print(label, f'{progress:.2f}%', timestamp(pos), len(inserted), 'events inserted.')
-
 
 
 def prepare(tx):
