@@ -1,10 +1,13 @@
 from datetime import datetime
 from decimal import Decimal
+from itertools import chain
+from concurrent.futures import ThreadPoolExecutor
 
 from web3.auto import w3
 from web3.middleware.filter import get_logs_multipart
 from web3._utils.events import get_event_data, construct_event_topic_set
 from eth_utils import event_signature_to_log_topic, encode_hex
+from termcolor import colored
 
 from lto_bridge.entities import Bridge, db_session
 
@@ -22,24 +25,38 @@ ABI = {
     'type': 'event',
 }
 # lto -> ethereum
-TOPICS = construct_event_topic_set(ABI, {'from': ZERO_ADDRESS})
+TOPICS_IN = construct_event_topic_set(ABI, {'from': ZERO_ADDRESS})
+TOPICS_OUT = construct_event_topic_set(ABI, {'to': ZERO_ADDRESS})
+
 ts_cache = {}
+pool = ThreadPoolExecutor(10)
+label = colored('Ethereum', 'blue')
 
 
 def fetch():
     start = Bridge.last_block('ethereum') or LTO_BLOCK
+    print(label, 'fetching since', start)
+    end = w3.eth.blockNumber
     txs = []
-    for batch in get_logs_multipart(w3, start, w3.eth.blockNumber, LTO_TOKEN, TOPICS, 10000):
-        if batch:
-            print(f"ethereum block {batch[-1]['blockNumber']}")
+    logs_in = get_logs_multipart(w3, start, end, LTO_TOKEN, TOPICS_IN, 10000)
+    logs_out = get_logs_multipart(w3, start, end, LTO_TOKEN, TOPICS_OUT, 10000)
+    for batch in chain.from_iterable(zip(logs_in, logs_out)):
+        # fetch timestamps concurrently
+        list(pool.map(timestamp, {tx['blockNumber'] for tx in batch}))
         txs = [prepare(tx) for tx in batch]
-        write(txs)
+        inserted = write(txs)
+        if inserted:
+            pos = batch[-1]['blockNumber']
+            progress = (pos - start) / (end - start) * 100
+            print(label, f'{progress:.2f}%', timestamp(pos), len(inserted), 'events inserted.')
+
 
 
 def prepare(tx):
     tx = get_event_data(ABI, tx)
     return dict(
         network='ethereum',
+        direction='in' if tx.args['from'] == ZERO_ADDRESS else 'out',
         tx=encode_hex(tx.transactionHash),
         value=Decimal(tx.args.value) / 10 ** 8,
         block=tx.blockNumber,
@@ -56,8 +73,9 @@ def timestamp(block_number):
 
 @db_session
 def write(txs):
+    inserted = []
     for prepared in txs:
         if Bridge.exists(tx=prepared['tx']):
             continue
-        inserted = Bridge(**prepared)
-        print(inserted)
+        inserted.append(Bridge(**prepared))
+    return inserted
