@@ -50,30 +50,20 @@ def write(txs):
     for tx in txs:
         if Bridge.exists(tx=tx['id']):
             continue
-        if tx['sender'] == LTO_BRIDGE:
-            inserted.append(
-                Bridge(
+        if LTO_BRIDGE in (tx['sender'], tx['recipient']):
+            row = Bridge(
                     network='lto',
-                    direction='in',
+                    direction='in' if tx['sender'] == LTO_BRIDGE else 'out',
                     tx=tx['id'],
                     value=value(tx),
                     block=tx['height'],
                     ts=timestamp(tx),
-                    fees=tx_fee(tx),
-                )
             )
-        elif tx['recipient'] == LTO_BRIDGE:
-            inserted.append(
-                Bridge(
-                    network='lto',
-                    direction='out',
-                    tx=tx['id'],
-                    value=value(tx),
-                    block=tx['height'],
-                    ts=timestamp(tx),
-                    burned=burns[tx['id']],
-                )
-            )
+            if tx['sender'] == LTO_BRIDGE:
+                row.fees = tx_fee(tx)
+            elif tx['recipient'] == LTO_BRIDGE:
+                row.burned = burns[tx['id']]
+            inserted.append(row)
     return inserted
 
 
