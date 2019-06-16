@@ -1,6 +1,7 @@
-from lto_bridge import binance, ethereum, lto
+from lto_bridge import binance, ethereum, lto, puzzle
 
 if __name__ == "__main__":
-    ethereum.fetch()
     binance.fetch()
+    ethereum.fetch()
     lto.fetch()
+    puzzle.solve()
