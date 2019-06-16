@@ -11,8 +11,7 @@ BINANCE_BRIDGE = 'bnb1esdfkkddv0sa5w7njk080rwuda47k3me3nxk75'
 
 class Binance:
     def fetch(self):
-        with db_session:
-            last_block = Bridge.last_block('binance')
+        last_block = Bridge.last_block('binance')
         txs = []
         for page in count(1):
             print(f'binance page {page}')
