@@ -55,12 +55,14 @@ def solve():
             match = maybe_pop(stacks, ['lto-out'], tx.value)
             if match:
                 stats.burned += match.burned or 0
+                stats.supply -= match or 0
                 stats.moved_out += tx.value
                 yield tx, construct_message(match, tx, stats)
         if key == 'binance-in':
             match = maybe_pop(stacks, ['lto-out', 'ethereum-out'], tx.value)
             if match:
                 stats.burned += match.burned or 0
+                stats.supply -= match or 0
                 if match.network == 'lto':
                     stats.moved_out += tx.value
                 yield tx, construct_message(match, tx, stats)
