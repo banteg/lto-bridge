@@ -12,6 +12,7 @@ pony = "^0.7.10"
 psycopg2 = "^2.8"
 requests = "^2.22"
 web3 = "=5.0.0b2"
+tgb = "^1.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

@@ -116,9 +116,6 @@ optional = false
 python-versions = ">=3.5, <4"
 version = "0.2.0"
 
-[package.dependencies]
-pycryptodome = ">=3.6.6,<4"
-
 [[package]]
 category = "main"
 description = "A library for handling the encrypted keyfiles used to store ethereum private keys."
@@ -432,6 +429,17 @@ version = "1.1.0"
 
 [[package]]
 category = "main"
+description = "A minimal Telegram API wrappper"
+name = "tgb"
+optional = false
+python-versions = "*"
+version = "1.2.0"
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
+category = "main"
 description = "List processing tools and functional utilities"
 name = "toolz"
 optional = false
@@ -492,7 +500,7 @@ python-versions = ">=2.7"
 version = "0.5.1"
 
 [metadata]
-content-hash = "79d806a693a7fb3b2c3f01a0746a0e437bd7e62d89961de85dde77b75d0afe4d"
+content-hash = "e3916b5ef945d13c16099bbd28e4227b7e642f7731fc8485fdb0c397fabb4858"
 python-versions = "^3.7"
 
 [metadata.hashes]
@@ -537,6 +545,7 @@ requests = ["11e007a8a2aa0323f5a921e9e6a2d7e4e67d9877e85773fba9ba6419025cbeb4", 
 rlp = ["0505fd53278cb4a3ea6baf1b658357ac209bdcdd1b316ac90050c40f669ceacc", "ebe80a03c50e3d6aac47f44ddd45048bb99e411203cd764f5da1330e6d83821c"]
 six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
 termcolor = ["1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"]
+tgb = ["d8dde30945c0f88952db33988816ba4669d70f29c9a08b21422dc3aaf505f23f"]
 toolz = ["929f0a7ea7f61c178bd951bdae93920515d3fbdbafc8e6caf82d752b9b3b31c9"]
 urllib3 = ["b246607a25ac80bedac05c6f282e3cdaf3afb65420fd024ac94435cabe6e18d1", "dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232"]
 varint = ["a6ecc02377ac5ee9d65a6a8ad45c9ff1dac8ccee19400a5950fb51d594214ca5"]

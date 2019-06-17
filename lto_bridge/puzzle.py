@@ -7,11 +7,13 @@ ERC20 -> BEP2: no fee, LTO Network pays the gas fees
 BEP2 -> ERC20: not available
 """
 from decimal import Decimal
+from dataclasses import dataclass
 from collections import defaultdict, deque
 
 from termcolor import colored
 
 from lto_bridge.entities import Bridge, db_session
+from lto_bridge.telegram import construct_message
 
 
 INITIAL_SUPPLY = Decimal('500_000_000')
@@ -23,8 +25,12 @@ IGNORE = [
     '0x233632c2a9ef5927b990279ab723d941e0ebd15ec441f934a9b71f9ea45cd215',  # 50_000_000
 ]
 
-emojis = {'ethereum': '🦄', 'binance': '🐬', 'lto': '🌝'}
-names = {'ethereum': 'ethereum', 'binance': 'binance chain', 'lto': 'mainnet'}
+@dataclass
+class Stats:
+    supply: Decimal = INITIAL_SUPPLY - CROWDSALE_BURNED
+    burned: Decimal = 0
+    moved_in: Decimal = 0
+    moved_out: Decimal = 0
 
 
 @db_session
@@ -39,9 +45,7 @@ def solve():
         stacks[key][value].append(tx)
 
     incoming = [tx for tx in crossings if tx.direction == 'in' and tx.tx not in IGNORE]
-    total_moved = 0
-    total_moved_away = 0
-    total_burned = 0
+    stats = Stats()
     for tx in incoming:
         if tx.direction != 'in':
             continue
@@ -50,43 +54,21 @@ def solve():
         if key == 'ethereum-in':
             match = maybe_pop(stacks, ['lto-out'], tx.value)
             if match:
-                total_burned += match.burned or 0
-                total_moved_away += tx.value
-                print(construct_message(match, tx, total_burned, total_moved, total_moved_away))
+                stats.burned += match.burned or 0
+                stats.moved_out += tx.value
+                yield tx, construct_message(match, tx, stats)
         if key == 'binance-in':
             match = maybe_pop(stacks, ['lto-out', 'ethereum-out'], tx.value)
             if match:
-                total_burned += match.burned or 0
+                stats.burned += match.burned or 0
                 if match.network == 'lto':
-                    total_moved_away += tx.value
-                print(construct_message(match, tx, total_burned, total_moved, total_moved_away))
+                    stats.moved_out += tx.value
+                yield tx, construct_message(match, tx, stats)
         if key == 'lto-in':
             match = maybe_pop(stacks, ['ethereum-out', 'binance-out'], tx.value + tx.fees)
             if match:
-                total_moved += tx.value
-                print(construct_message(match, tx, total_burned, total_moved))
-
-
-def construct_message(left, right, total_burned, total_moved, total_moved_away=None):
-    total_supply = INITIAL_SUPPLY - CROWDSALE_BURNED - total_burned
-    msg = (
-        f'{emojis[left.network]}→{emojis[right.network]} '
-        f'{right.value:,.2f} lto moved from {names[left.network]} to {names[right.network]}'
-    )
-    if tx_key(left) == 'lto-out' and tx_key(right) in ('ethereum-in', 'binance-in'):
-        percent_burned = left.burned / (left.burned + right.value) * 100
-        msg += (
-            f' 🔥 {left.burned:,.2f} burned ({percent_burned:.1f}%)'
-            f'\n{total_burned:,.0f} total burned'
-            f'\n{total_moved_away:,.0f} total moved from mainnet'
-            f'\n{total_supply:,.0f} supply remaining'
-        )
-    if tx_key(right) == 'lto-in':
-        msg += (
-            f'\n{total_moved:,.0f} total moved to mainnet'
-        )
-    msg += '\n'
-    return msg
+                stats.moved_in += tx.value
+                yield tx, construct_message(match, tx, stats)
 
 
 def tx_key(tx):

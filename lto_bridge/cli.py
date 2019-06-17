@@ -2,17 +2,17 @@
 LTO Bridge
 
 Usage:
-  lto-bridge [--fetch] [--solve]
+  lto-bridge [--fetch] [--solve] [--post]
   lto-bridge dropdb
 
 Options:
   -f --fetch  fetch new events
   -s --solve  match bridge events
+  -p --post   post to telegram
 """
-
 import docopt
 
-from lto_bridge import binance, ethereum, lto, puzzle, entities
+from lto_bridge import binance, ethereum, lto, puzzle, telegram, entities
 
 
 def main():
@@ -25,7 +25,8 @@ def main():
         ethereum.fetch()
         lto.fetch()
     if opts['--solve']:
-        puzzle.solve()
+        messages = list(puzzle.solve())
+        telegram.publish(messages, opts['--post'])
 
 
 if __name__ == "__main__":
