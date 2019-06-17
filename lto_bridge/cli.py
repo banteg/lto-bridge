@@ -15,8 +15,8 @@ import docopt
 from lto_bridge import binance, ethereum, lto, puzzle, entities
 
 
-def main(opts):
-    print(opts)
+def main():
+    opts = docopt.docopt(__doc__)
     if opts['dropdb']:
         entities.db.drop_all_tables(with_all_data=True)
         print('database cleared.')
@@ -29,4 +29,4 @@ def main(opts):
 
 
 if __name__ == "__main__":
-    main(docopt.docopt(__doc__))
+    main()
