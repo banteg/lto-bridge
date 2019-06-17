@@ -37,11 +37,12 @@ to set up remote sources:
 LTO Bridge
 
 Usage:
-  lto-bridge [--fetch] [--solve] [--post]
+  lto-bridge [--fetch] [--solve] [--post] [--daemon]
   lto-bridge dropdb
 
 Options:
-  -f --fetch  fetch new events
-  -s --solve  match bridge events
-  -p --post   post to telegram
+  -f --fetch   fetch new events
+  -s --solve   match bridge events
+  -p --post    post to telegram
+  -d --daemon  operate in daemon mode
 ```
