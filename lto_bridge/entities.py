@@ -1,5 +1,6 @@
-import datetime
+import os
 from decimal import Decimal
+from datetime import datetime
 
 from pony.orm import *
 
@@ -14,8 +15,8 @@ class Bridge(db.Entity):
     burned = Optional(Decimal, sql_type='numeric')
     fees = Optional(Decimal, sql_type='numeric')
     block = Required(int)
-    ts = Required(datetime.datetime)
-    posted = Optional(datetime.datetime)
+    ts = Required(datetime)
+    posted = Optional(datetime)
 
     @staticmethod
     @db_session
@@ -28,5 +29,5 @@ class Bridge(db.Entity):
         return db.execute("update bridge set posted = '1970-01-01' where direction = 'in'")
 
 
-db.bind(provider='postgres', user='banteg', database='lto')
+db.bind(provider='postgres', user=os.environ['PGUSER'], database='lto')
 db.generate_mapping(create_tables=True)
