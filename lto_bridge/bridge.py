@@ -1,7 +1,32 @@
-from lto_bridge import binance, ethereum, lto, puzzle
+"""
+LTO Bridge
+
+Usage:
+  lto-bridge [--fetch] [--solve]
+  lto-bridge dropdb
+
+Options:
+  -f --fetch  fetch new events
+  -s --solve  match bridge events
+"""
+
+import docopt
+
+from lto_bridge import binance, ethereum, lto, puzzle, entities
+
+
+def main(opts):
+    print(opts)
+    if opts['dropdb']:
+        entities.db.drop_all_tables(with_all_data=True)
+        print('database cleared.')
+    if opts['--fetch']:
+        binance.fetch()
+        ethereum.fetch()
+        lto.fetch()
+    if opts['--solve']:
+        puzzle.solve()
+
 
 if __name__ == "__main__":
-    binance.fetch()
-    ethereum.fetch()
-    lto.fetch()
-    puzzle.solve()
+    main(docopt.docopt(__doc__))
