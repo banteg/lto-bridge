@@ -13,8 +13,7 @@ from lto_bridge.entities import Bridge, db_session
 LTO_FEES = '3JrGV6TeEV3ovVjsh9SPqQL48EDLET47B9U'
 LTO_BRIDGE = '3JugjxT51cTjWAsgnQK4SpmMqK6qua1VpXH'
 
-LTO_NODE = 'http://127.0.0.1:6869'
-LTO_API_KEY = os.environ['LTO_API_KEY']
+LTO_NODE = os.environ['LTO_NODE']
 
 search_window = timedelta(days=1)
 label = colored('LTO', 'magenta')
