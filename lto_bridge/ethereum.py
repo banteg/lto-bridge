@@ -1,15 +1,21 @@
+import os
 from datetime import datetime
 from decimal import Decimal
 from itertools import chain
 from concurrent.futures import ThreadPoolExecutor
 
-from web3.auto import w3
 from web3.middleware.filter import get_logs_multipart
 from web3._utils.events import get_event_data, construct_event_topic_set
 from eth_utils import encode_hex
 from termcolor import colored
 
 from lto_bridge.entities import Bridge, db_session
+
+if os.environ.get('WEB3_INFURA_PROJECT_ID'):
+    os.environ['WEB3_INFURA_SCHEME'] = 'https'  # websocket impl. is buggy
+    from web3.auto.infura import w3
+else:
+    from web3.auto import w3
 
 LTO_TOKEN = '0x3DB6Ba6ab6F95efed1a6E794caD492fAAabF294D'
 ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
