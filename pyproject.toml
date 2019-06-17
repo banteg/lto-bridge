@@ -3,6 +3,9 @@ name = "lto-bridge"
 version = "0.2.0"
 description = "three-way lto bridge monitoring"
 authors = ["banteg <banteeg@gmail.com>"]
+readme = "readme.md"
+license = "MIT"
+repository = "https://github.com/banteg/lto-bridge"
 
 [tool.poetry.dependencies]
 python = "^3.7"

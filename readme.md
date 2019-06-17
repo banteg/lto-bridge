@@ -1,16 +1,18 @@
 # lto bridge
 
-this tool monitors lto network's three-way bridge, matches up transactions on its ends
-and reports them to a [telegram channel](https://t.me/troll_bridge).
+monitor lto network's three-way bridge, match up transactions
+and report them to [telegram channel](https://t.me/troll_bridge).
 
 ## installation
 
 requires python 3.7, poetry and postgres.
 
 ```
-poetry install
 createdb lto
+poetry install
 ```
+
+alternatively, you can `pip install` file from releases section.
 
 set up these environment variables:
 - `TELEGRAM_BOT_KEY` obtian from [bot father](https://t.me/BotFather)
