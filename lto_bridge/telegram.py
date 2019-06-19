@@ -17,7 +17,7 @@ names = {'ethereum': 'ethereum', 'binance': 'binance chain', 'lto': 'mainnet'}
 def construct_message(left, right, stats):
     msg = (
         f'{emojis[left.network]}→{emojis[right.network]} '
-        f'{fnum(right.value, 2)} lto moved from {names[left.network]} to {names[right.network]}'
+        f'{fnum(right.value, 2)} lto moved from [{names[left.network]}]({tx_link(left)}) to [{names[right.network]}]({tx_link(right)})'
     )
     if tx_key(left) == 'lto-out' and tx_key(right) in ('ethereum-in', 'binance-in'):
         percent_burned = left.burned / (left.burned + right.value)
@@ -45,11 +45,20 @@ def publish(messages, post=False):
         tx.posted = datetime.utcnow()
         print(label, text, '\n')
         if post:
-            t.send_message(chat_id=chat_id, text=text)
+            t.send_message(chat_id=chat_id, text=text, parse_mode='markdown', disable_web_page_preview=True)
 
 
 def tx_key(tx):
     return f'{tx.network}-{tx.direction}'
+
+
+def tx_link(tx):
+    if tx.network == 'lto':
+        return f'https://explorer.lto.network/transactions/{tx.tx}'
+    if tx.network == 'binance':
+        return f'https://explorer.binance.org/tx/{tx.tx}'
+    if tx.network == 'ethereum':
+        return f'https://etherscan.io/tx/{tx.tx}'
 
 
 def fnum(number, decimals=6):
