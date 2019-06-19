@@ -17,18 +17,18 @@ names = {'ethereum': 'ethereum', 'binance': 'binance chain', 'lto': 'mainnet'}
 def construct_message(left, right, stats):
     msg = (
         f'{emojis[left.network]}→{emojis[right.network]} '
-        f'{right.value:,.2f} lto moved from {names[left.network]} to {names[right.network]}'
+        f'{fnum(right.value, 2)} lto moved from {names[left.network]} to {names[right.network]}'
     )
     if tx_key(left) == 'lto-out' and tx_key(right) in ('ethereum-in', 'binance-in'):
-        percent_burned = left.burned / (left.burned + right.value) * 100
+        percent_burned = left.burned / (left.burned + right.value)
         msg += (
-            f' 🔥 {left.burned:,.2f} burned ({percent_burned:.1f}%)'
-            f'\n{stats.burned:,.0f} total burned'
-            f'\n{stats.moved_out:,.0f} total moved from mainnet'
-            f'\n{stats.supply:,.0f} supply remaining'
+            f' 🔥 {fnum(left.burned, 2)} burned ({percent_burned:.1%})'
+            f'\n{fnum(stats.burned, 0)} total burned'
+            f'\n{fnum(stats.moved_out, 0)} total moved from mainnet'
+            f'\n{fnum(stats.supply, 0)} supply remaining'
         )
     if tx_key(right) == 'lto-in':
-        msg += f'\n{stats.moved_in:,.0f} total moved to mainnet'
+        msg += f'\n{fnum(stats.moved_in, 0)} total moved to mainnet'
     return msg
 
 
@@ -50,3 +50,7 @@ def publish(messages, post=False):
 
 def tx_key(tx):
     return f'{tx.network}-{tx.direction}'
+
+
+def fnum(number, decimals=6):
+    return format(number, f',.{decimals}f').rstrip('0').rstrip('.')
