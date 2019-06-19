@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lto-bridge"
-version = "0.2.0"
+version = "0.2.1"
 description = "three-way lto bridge monitoring"
 authors = ["banteg <banteeg@gmail.com>"]
 readme = "readme.md"
