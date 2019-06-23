@@ -20,9 +20,10 @@ def construct_message(left, right, stats):
         f'{fnum(right.value, 2)} lto moved from [{names[left.network]}]({tx_link(left)}) to [{names[right.network]}]({tx_link(right)})'
     )
     if tx_key(left) == 'lto-out' and tx_key(right) in ('ethereum-in', 'binance-in'):
-        percent_burned = left.burned / (left.burned + right.value)
+        if left.burned:
+            percent_burned = left.burned / (burned + right.value)
+            msg += f' 🔥 {fnum(left.burned, 2)} burned ({percent_burned:.1%})'
         msg += (
-            f' 🔥 {fnum(left.burned, 2)} burned ({percent_burned:.1%})'
             f'\n{fnum(stats.burned, 0)} total burned'
             f'\n{fnum(stats.moved_out, 0)} total moved from mainnet'
             f'\n{fnum(stats.supply, 0)} supply remaining'
