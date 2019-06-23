@@ -21,7 +21,7 @@ def construct_message(left, right, stats):
     )
     if tx_key(left) == 'lto-out' and tx_key(right) in ('ethereum-in', 'binance-in'):
         if left.burned:
-            percent_burned = left.burned / (burned + right.value)
+            percent_burned = left.burned / (left.burned + right.value)
             msg += f' 🔥 {fnum(left.burned, 2)} burned ({percent_burned:.1%})'
         msg += (
             f'\n{fnum(stats.burned, 0)} total burned'
