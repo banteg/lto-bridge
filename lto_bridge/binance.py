@@ -28,7 +28,7 @@ def fetch():
         if len(txs) == data['txNums'] or not data['txArray'] or already_indexed:
             break
 
-    txs = [prepare(tx) for tx in txs if tx['txAsset'] == 'LTO-BDF']
+    txs = [prepare(tx) for tx in txs if tx.get('txAsset') == 'LTO-BDF']
     write(txs)
 
 
