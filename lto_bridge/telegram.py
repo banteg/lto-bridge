@@ -63,4 +63,5 @@ def tx_link(tx):
 
 
 def fnum(number, decimals=6):
-    return format(number, f',.{decimals}f').rstrip('0').rstrip('.')
+    formatted = format(number, f',.{decimals}f')
+    return formatted if decimals == 0 else formatted.rstrip('0').rstrip('.')
