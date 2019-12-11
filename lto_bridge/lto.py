@@ -47,22 +47,23 @@ def write(txs):
     burns = merge_burns(txs)
     inserted = []
     for tx in txs:
-        if Bridge.exists(tx=tx['id']):
-            continue
-        if LTO_BRIDGE in (tx['sender'], tx['recipient']):
-            row = Bridge(
-                    network='lto',
-                    direction='in' if tx['sender'] == LTO_BRIDGE else 'out',
-                    tx=tx['id'],
-                    value=value(tx),
-                    block=tx['height'],
-                    ts=timestamp(tx),
-            )
-            if tx['sender'] == LTO_BRIDGE:
-                row.fees = tx_fee(tx)
-            elif tx['recipient'] == LTO_BRIDGE:
-                row.burned = burns[tx['id']]
-            inserted.append(row)
+        if tx['type'] == 4:
+            if Bridge.exists(tx=tx['id']):
+                continue
+            if LTO_BRIDGE in (tx['sender'], tx['recipient']):
+                row = Bridge(
+                        network='lto',
+                        direction='in' if tx['sender'] == LTO_BRIDGE else 'out',
+                        tx=tx['id'],
+                        value=value(tx),
+                        block=tx['height'],
+                        ts=timestamp(tx),
+                )
+                if tx['sender'] == LTO_BRIDGE:
+                    row.fees = tx_fee(tx)
+                elif tx['recipient'] == LTO_BRIDGE:
+                    row.burned = burns[tx['id']]
+                inserted.append(row)
     return inserted
 
 
@@ -70,10 +71,11 @@ def merge_burns(txs):
     out = defaultdict(list)
     burn = defaultdict(list)
     for tx in txs:
-        if tx['recipient'] == LTO_BRIDGE:
-            out[tx['sender']].append(tx)
-        if tx['recipient'] == LTO_FEES:
-            burn[tx['sender']].append(tx)
+        if tx['type'] == 4:
+            if tx['recipient'] == LTO_BRIDGE:
+                out[tx['sender']].append(tx)
+            if tx['recipient'] == LTO_FEES:
+                burn[tx['sender']].append(tx)
     result = {}
     for sender in out:
         # assume that amount burned is proportional to tx amount
