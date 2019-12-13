@@ -28,7 +28,8 @@ def lto(request):
 def get_transactions(limit):
     bridge_txs = lto(f'/transactions/address/{LTO_BRIDGE}/limit/{limit}')[0]
     fees_txs = lto(f'/transactions/address/{LTO_FEES}/limit/{limit}')[0]
-    return list(sorted(bridge_txs + fees_txs, key=itemgetter('height')))
+    transfers = [tx for tx in bridge_txs + fees_txs if tx['type'] == 4]
+    return list(sorted(transfers, key=itemgetter('height')))
 
 
 def fetch():
